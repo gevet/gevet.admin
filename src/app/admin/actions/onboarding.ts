@@ -53,11 +53,12 @@ export async function completarOnboardingAction(formData: FormData) {
 
     // Upload logo to Supabase Storage if provided
     if (logoFile && logoFile.size > 0) {
-      const fileName = `${tenant_id}-${Date.now()}.${logoFile.name.split('.').pop()}`
-      const filePath = `logos/${tenant_id}/${fileName}`
+      const ext = logoFile.name.split('.').pop() || 'png'
+      const fileName = `${tenant_id}-${Date.now()}.${ext}`
+      const filePath = `${tenant_id}/${fileName}`
 
-      const { error: uploadError, data: uploadData } = await supabase.storage
-        .from('tenant-logos')
+      const { error: uploadError } = await supabase.storage
+        .from('logos')
         .upload(filePath, logoFile, {
           cacheControl: '3600',
           upsert: true,
@@ -69,7 +70,7 @@ export async function completarOnboardingAction(formData: FormData) {
       }
 
       const { data: publicUrlData } = supabase.storage
-        .from('tenant-logos')
+        .from('logos')
         .getPublicUrl(filePath)
 
       logoUrl = publicUrlData.publicUrl
