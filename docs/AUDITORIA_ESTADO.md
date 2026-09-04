@@ -2,13 +2,21 @@
 
 **Fecha:** 2026-09-04  
 **Rama:** `claude/gevet-saas-multitenant-aph8vm`  
-**Commit:** eaca20c (Merge pull request #7 from gevet/feat/auth-completa)
+**Commit Actual:** 2332a56 (Phase 3 database types + utilities)  
+**Últimas Adiciones:** Fase 2 completada, Fase 3 en progreso
 
 ## Resumen Ejecutivo
 
 GeVet es un scaffolding de SaaS veterinario multi-tenant con infraestructura de seguridad básica pero **sin implementación de dominio real**. El catálogo de módulos es extenso (55 pantallas), pero todas usan un componente genérico `RecordsBoard` conectado a una tabla discriminada `gestion_registros(tipo, detalle jsonb)`. 
 
-**Estado:** No listo para producción. Requiere normalización de base de datos, tipado de dominio, validación server-side, paginación, tests y completitud de flujos críticos.
+**Estado Actual:** Fase 2 (Autenticación) completada. Fase 3 (Normalización BD) en progreso. Se completaron:
+- ✓ Migraciones 005-010 con tablas normalizadas (clientes, mascotas, turnos, consultas, roles, sucursales)
+- ✓ Types TypeScript para todas las tablas
+- ✓ Database access layer (CRUD utilities con RLS automático)
+- ✓ Fixes: Vite peer dependency, package.json limpio
+- ⏳ Próximo: CI/CD validation, RLS tests, data migration runners, server actions para CRUD
+
+**Estado:** No listo para producción. Requiere validación RLS en CI/CD, tests de multi-tenancy, implementación de server actions CRUD y completitud de flujos críticos.
 
 ---
 
@@ -382,15 +390,17 @@ Storage:
 - [ ] Email verificado (si requiere)
 
 ### Fase 3: Base de Datos Normalizada
-- [ ] Migración 005: Mejorar gestion_clientes
-- [ ] Migración 006: gestion_mascotas con FK multi-tenant
-- [ ] Migración 007: gestion_turnos normalizado
-- [ ] Migración 008: gestion_consultas normalizado
-- [ ] Migración 009: gestion_items y gestion_stock
-- [ ] Migración 010: gestion_movimientos_caja
+- [x] Migración 005: Normalizar clientes table
+- [x] Migración 006: Normalizar mascotas table con FK a clientes
+- [x] Migración 007: Normalizar turnos table con estado y profesional
+- [x] Migración 008: Normalizar consultas table (SOAP format)
+- [x] Migración 009: Crear roles y sucursales con RLS
+- [x] Migración 010: Helpers para data migration y default setup
+- [x] TypeScript type definitions (src/lib/types/database.ts)
+- [x] Database access utilities (src/lib/db.ts)
 - [ ] Validación RLS en CI/CD
 - [ ] Tests de aislamiento multi-tenant
-- [ ] Tipos TypeScript auto-generados
+- [ ] Data migration runner
 
 ### Fase 4: Clientes
 - [ ] Listado server-side con paginación
