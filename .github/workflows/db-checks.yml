@@ -1,0 +1,50 @@
+name: Database Checks
+
+on:
+  push:
+    branches: [main, claude/**]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/SETUP_COMPLETO.sql'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/SETUP_COMPLETO.sql'
+
+jobs:
+  validate-migrations:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify migrations are numbered
+        run: |
+          for file in supabase/migrations/*.sql; do
+            filename=$(basename "$file")
+            if ! [[ "$filename" =~ ^[0-9]{3}_.*\.sql$ ]]; then
+              echo "❌ Migration file name must follow pattern NNN_name.sql: $filename"
+              exit 1
+            fi
+          done
+          echo "✓ All migration files follow naming convention"
+
+      - name: Check for hardcoded tenant data
+        run: |
+          if grep -r "INSERT INTO.*tenants" supabase/migrations/ | grep -v "^[[:space:]]*--"; then
+            echo "❌ Found hardcoded tenant data in migrations"
+            exit 1
+          fi
+          echo "✓ No hardcoded tenant data found"
+
+      - name: Verify RLS in migrations
+        run: |
+          for file in supabase/migrations/*.sql; do
+            if grep -q "CREATE TABLE\|ALTER TABLE" "$file"; then
+              if ! grep -q "enable row level security\|ALTER TABLE.*ENABLE ROW LEVEL SECURITY" "$file"; then
+                echo "⚠ Warning: $file creates/modifies table without RLS mention"
+              fi
+            fi
+          done
+          echo "✓ RLS verification complete"
