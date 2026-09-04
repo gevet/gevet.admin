@@ -1,0 +1,1 @@
+import {z} from "zod";export const loginSchema=z.object({email:z.string().email("Ingresá un email válido"),password:z.string().min(8,"La contraseña debe tener al menos 8 caracteres")});export const registrationSchema=loginSchema.extend({nombreComercial:z.string().trim().min(2,"Ingresá el nombre comercial").max(120)});
