@@ -1,0 +1,6 @@
+@import "tailwindcss";
+:root{--primario:#2563eb;--primario-oscuro:#1d4ed8;--acento:#14b8a6;--fondo:#f4f7fb;--texto:#172033}
+*{box-sizing:border-box}body{margin:0;background:var(--fondo);color:var(--texto);font-family:Inter,ui-sans-serif,system-ui,sans-serif}button,input,select,textarea{font:inherit}
+.focus-ring:focus-visible{outline:3px solid color-mix(in srgb,var(--primario) 35%,transparent);outline-offset:2px}
+.scrollbar::-webkit-scrollbar{width:6px}.scrollbar::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
