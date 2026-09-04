@@ -1,0 +1,50 @@
+name: Security Checks
+
+on:
+  push:
+    branches: [main, claude/**]
+  pull_request:
+    branches: [main]
+
+jobs:
+  secret-scanning:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+
+      - name: Check for common secrets
+        run: |
+          set +e
+          FOUND_SECRET=0
+
+          # Check for various secret patterns
+          if grep -r "SUPABASE_SERVICE_ROLE_KEY" src/ --include="*.ts" --include="*.tsx" --include="*.js"; then
+            echo "❌ Found service_role key in client code!"
+            FOUND_SECRET=1
+          fi
+
+          if grep -r "process.env\.\(SUPABASE_SERVICE_ROLE_KEY\|DATABASE_URL\|JWT_SECRET\)" public/ --include="*.js"; then
+            echo "❌ Found sensitive env vars exposed in public!"
+            FOUND_SECRET=1
+          fi
+
+          if [ $FOUND_SECRET -eq 1 ]; then
+            exit 1
+          fi
+
+          echo "✓ No obvious secrets found in client code"
+
+      - name: Check package dependencies
+        run: npm audit --audit-level moderate
