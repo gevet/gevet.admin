@@ -27,14 +27,14 @@ drop trigger if exists al_crear_usuario_auth on auth.users;
 create trigger al_crear_usuario_auth after insert on auth.users
 for each row execute function public.crear_tenant_desde_auth();
 
-alter table public.gestion_registros alter column tenant_id set default auth.tenant_id();
+alter table public.gestion_registros alter column tenant_id set default public.tenant_id();
 alter table public.gestion_registros alter column creado_por set default auth.uid();
 
 -- Impide que incluso un cliente malicioso suplante el contexto calculado.
 create or replace function public.forzar_contexto_registro()
 returns trigger language plpgsql set search_path=public,auth as $$
 begin
-  new.tenant_id := auth.tenant_id();
+  new.tenant_id := public.tenant_id();
   new.creado_por := coalesce(new.creado_por,auth.uid());
   return new;
 end;
