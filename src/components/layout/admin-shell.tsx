@@ -5,6 +5,7 @@ import {usePathname} from "next/navigation";
 import {useMemo,useState} from "react";
 import {Bell,ChevronLeft,ChevronRight,LayoutGrid,Menu,Search,Settings,X} from "lucide-react";
 import {GevetLogo} from "@/components/brand/gevet-logo";
+import {LogoutButton} from "@/components/auth/logout-button";
 import {MODULE_GROUPS,MODULES} from "@/lib/modules/catalog";
 
 export function AdminShell({children}:{children:React.ReactNode}){
@@ -22,6 +23,6 @@ export function AdminShell({children}:{children:React.ReactNode}){
         <div className="border-t border-white/10 p-3"><Link href="/admin/configuracion" className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm hover:bg-white/7"><Settings size={19}/>{!small&&"Configuración"}</Link><button onClick={()=>setSmall(!small)} className="mt-1 hidden min-h-10 w-full items-center justify-center rounded-xl hover:bg-white/7 lg:flex" aria-label={small?"Expandir menú":"Contraer menú"}>{small?<ChevronRight/>:<ChevronLeft/>}</button></div>
       </div>
     </aside>
-    {open&&<button aria-label="Cerrar menú" className="fixed inset-0 z-30 bg-black/30 lg:hidden" onClick={()=>setOpen(false)}/>}<div className="min-w-0 flex-1"><header className="sticky top-0 z-20 flex h-17 items-center gap-3 border-b border-slate-200 bg-white/90 px-4 backdrop-blur sm:px-7"><button className="rounded-lg p-2 lg:hidden" onClick={()=>setOpen(true)} aria-label="Abrir menú"><Menu/></button><button className="hidden min-w-0 flex-1 items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-left text-sm text-slate-500 sm:flex"><Search size={18}/> Buscar en GeVet <kbd className="ml-auto rounded border bg-white px-2 py-0.5 text-xs">⌘ K</kbd></button><span className="flex-1 sm:hidden"/><button className="relative rounded-xl p-2.5 hover:bg-slate-100" aria-label="Notificaciones"><Bell size={20}/></button><div className="h-9 w-9 rounded-full bg-blue-100 text-center text-sm font-bold leading-9 text-blue-700">US</div></header><main className="mx-auto max-w-[1500px] p-4 sm:p-7">{children}</main></div>
+    {open&&<button aria-label="Cerrar menú" className="fixed inset-0 z-30 bg-black/30 lg:hidden" onClick={()=>setOpen(false)}/>}<div className="min-w-0 flex-1"><header className="sticky top-0 z-20 flex h-17 items-center gap-3 border-b border-slate-200 bg-white/90 px-4 backdrop-blur sm:px-7"><button className="rounded-lg p-2 lg:hidden" onClick={()=>setOpen(true)} aria-label="Abrir menú"><Menu/></button><button className="hidden min-w-0 flex-1 items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-left text-sm text-slate-500 sm:flex"><Search size={18}/> Buscar en GeVet <kbd className="ml-auto rounded border bg-white px-2 py-0.5 text-xs">⌘ K</kbd></button><span className="flex-1 sm:hidden"/><button className="relative rounded-xl p-2.5 hover:bg-slate-100" aria-label="Notificaciones"><Bell size={20}/></button><div className="h-9 w-9 rounded-full bg-blue-100 text-center text-sm font-bold leading-9 text-blue-700">US</div><LogoutButton/></header><main className="mx-auto max-w-[1500px] p-4 sm:p-7">{children}</main></div>
   </div>
 }
