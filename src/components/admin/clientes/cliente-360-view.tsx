@@ -1,14 +1,14 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Calendar, Heart, Pill, FileText, TrendingUp, MapPin, Mail, Phone } from 'lucide-react'
-import type { Cliente } from '@/lib/types/database'
+import { Calendar, Heart, FileText, TrendingUp, MapPin, Mail, Phone } from 'lucide-react'
+import type { Cliente, Mascota, Turno, Consulta } from '@/lib/types/database'
 
 interface Historial360Data {
   cliente: Cliente
-  mascotas: any[]
-  turnos: any[]
-  consultas: any[]
+  mascotas: Mascota[]
+  turnos: Turno[]
+  consultas: Consulta[]
 }
 
 interface Cliente360ViewProps {
@@ -30,8 +30,8 @@ export function Cliente360View({ data }: Cliente360ViewProps) {
 
     // Get last activity date
     const allDates = [
-      ...turnos.map((t: any) => new Date(t.fecha_hora)),
-      ...consultas.map((c: any) => new Date(c.creado_en)),
+      ...turnos.map((t) => new Date(t.fecha_hora)),
+      ...consultas.map((c) => new Date(c.creado_en)),
     ]
     const lastActivityDate =
       allDates.length > 0 ? new Date(Math.max(...allDates.map((d) => d.getTime()))) : null
@@ -139,7 +139,7 @@ export function Cliente360View({ data }: Cliente360ViewProps) {
               <div>
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Mascotas</h3>
                 <div className="space-y-2">
-                  {mascotas.map((mascota: any) => (
+                  {mascotas.map((mascota) => (
                     <div key={mascota.id} className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded">
                       <p className="font-medium text-slate-900 dark:text-white">
                         {mascota.nombre} ({mascota.especie})
@@ -160,7 +160,7 @@ export function Cliente360View({ data }: Cliente360ViewProps) {
                   Últimos Turnos
                 </h3>
                 <div className="space-y-2">
-                  {turnos.slice(0, 5).map((turno: any) => (
+                  {turnos.slice(0, 5).map((turno) => (
                     <div key={turno.id} className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded">
                       <p className="font-medium text-slate-900 dark:text-white">
                         {new Date(turno.fecha_hora).toLocaleDateString('es-ES')}
@@ -179,7 +179,7 @@ export function Cliente360View({ data }: Cliente360ViewProps) {
                   Últimas Consultas
                 </h3>
                 <div className="space-y-2">
-                  {consultas.slice(0, 5).map((consulta: any) => (
+                  {consultas.slice(0, 5).map((consulta) => (
                     <div key={consulta.id} className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded">
                       <p className="font-medium text-slate-900 dark:text-white">
                         {new Date(consulta.creado_en).toLocaleDateString('es-ES')}
