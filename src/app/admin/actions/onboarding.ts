@@ -14,7 +14,7 @@ const onboardingSchema = z.object({
   direccion: z.string().min(1, 'La dirección es requerida'),
   ciudad: z.string().min(1, 'La ciudad es requerida'),
   provincia: z.string().min(1, 'La provincia es requerida'),
-  email: z.string().email('Email inválido'),
+  email: z.union([z.string().email('Email inválido'), z.string().length(0)]),
   horarioApertura: z.string().regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido'),
   horarioCierre: z.string().regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido'),
 })
