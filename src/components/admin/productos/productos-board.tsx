@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Download, Plus, Search, Trash2, Edit2 } from 'lucide-react'
+import { Download, Plus, Search, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -16,7 +16,6 @@ export function ProductosBoard() {
   const [error, setError] = useState<string>()
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -211,7 +210,7 @@ export function ProductosBoard() {
             {filtered.map((item) => (
               <div
                 key={item.id}
-                className="grid gap-2 border-b border-slate-100 p-5 last:border-0 md:grid-cols-[1.5fr_120px_120px_100px_80px_44px_44px] md:items-center"
+                className="grid gap-2 border-b border-slate-100 p-5 last:border-0 md:grid-cols-[1.5fr_120px_120px_100px_80px_44px] md:items-center"
               >
                 <div>
                   <div className="font-semibold">{item.nombre}</div>
@@ -228,13 +227,6 @@ export function ProductosBoard() {
                   </span>
                 </div>
                 <div className="text-xs text-slate-400">{item.proveedor || '—'}</div>
-                <button
-                  onClick={() => setEditingId(item.id)}
-                  className="justify-self-end rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
-                  aria-label="Editar"
-                >
-                  <Edit2 size={17} />
-                </button>
                 <button
                   onClick={() => void remove(item.id)}
                   className="justify-self-end rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"

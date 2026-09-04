@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, ShoppingCart, Plus } from 'lucide-react'
+import { X, ShoppingCart } from 'lucide-react'
 import { crearVentaAction, listarProductosAction } from '@/app/admin/actions/productos'
 import type { Producto, Venta } from '@/lib/types/database'
 
@@ -96,7 +96,7 @@ export function VentaModal({ consultaId, clienteId, onClose, onVentaCreada }: Ve
 
       setCarrito([])
       onClose()
-    } catch (err) {
+    } catch {
       setError('Error al registrar las ventas')
     } finally {
       setLoading(false)
@@ -194,7 +194,7 @@ export function VentaModal({ consultaId, clienteId, onClose, onVentaCreada }: Ve
             <label className="block text-sm font-medium mb-2">Método de pago</label>
             <select
               value={metodoPago}
-              onChange={(e) => setMetodoPago(e.target.value as any)}
+              onChange={(e) => setMetodoPago(e.target.value as Venta['metodo_pago'])}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800"
             >
               <option value="Contado">Contado</option>

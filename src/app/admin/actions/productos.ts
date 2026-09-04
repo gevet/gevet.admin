@@ -2,8 +2,6 @@
 
 import { z } from 'zod'
 import { getDbContext, crearProducto, listarProductos, actualizarProducto, crearVenta, listarVentasConsulta, listarVentasCliente, obtenerProducto } from '@/lib/db'
-import { createClient } from '@/lib/supabase/server'
-import type { Producto, Venta } from '@/lib/types/database'
 
 const productoSchema = z.object({
   nombre: z.string().min(1, 'Nombre del producto requerido'),
@@ -168,7 +166,6 @@ export async function listarVentasClienteAction(clienteId: string) {
     if (!context) return { error: 'No autorizado' }
 
     const ventas = await listarVentasCliente(clienteId)
-    const supabase = await createClient()
 
     // Get product details for each sale
     const ventasConProductos = await Promise.all(

@@ -247,6 +247,184 @@ export interface Producto {
 }
 
 /**
+ * Proveedores (Suppliers)
+ */
+export interface Proveedor {
+  id: string
+  tenant_id: string
+  razon_social: string
+  nombre_fantasia: string | null
+  cuit: string | null
+  email: string | null
+  telefono: string | null
+  direccion: string | null
+  ciudad: string | null
+  provincia: string | null
+  contacto: string | null
+  condicion_pago: string
+  observaciones: string | null
+  activo: boolean
+  creado_en: string
+  actualizado_en: string | null
+}
+
+/**
+ * Órdenes de compra (Purchase orders)
+ */
+export interface OrdenCompra {
+  id: string
+  tenant_id: string
+  proveedor_id: string
+  numero: number
+  fecha: string
+  fecha_entrega_estimada: string | null
+  estado: 'Borrador' | 'Enviada' | 'Recibida Parcial' | 'Recibida' | 'Cancelada'
+  subtotal: number
+  impuestos: number
+  total: number
+  observaciones: string | null
+  creado_por: string
+  creado_en: string
+  actualizado_en: string | null
+}
+
+export interface OrdenCompraItem {
+  id: string
+  tenant_id: string
+  orden_id: string
+  producto_id: string
+  cantidad: number
+  cantidad_recibida: number
+  precio_unitario: number
+  subtotal: number
+  creado_en: string
+}
+
+/**
+ * Plan de cuentas (Chart of accounts)
+ */
+export interface CuentaContable {
+  id: string
+  tenant_id: string
+  codigo: string
+  nombre: string
+  tipo: 'Activo' | 'Pasivo' | 'Patrimonio' | 'Ingreso' | 'Egreso'
+  imputable: boolean
+  activo: boolean
+  creado_en: string
+  actualizado_en: string | null
+}
+
+/**
+ * Asientos contables (Journal entries)
+ */
+export interface AsientoContable {
+  id: string
+  tenant_id: string
+  numero: number
+  fecha: string
+  descripcion: string
+  referencia_tipo: string | null
+  referencia_id: string | null
+  total_debe: number
+  total_haber: number
+  estado: 'Borrador' | 'Registrado' | 'Anulado'
+  creado_por: string
+  creado_en: string
+  actualizado_en: string | null
+}
+
+export interface AsientoLinea {
+  id: string
+  tenant_id: string
+  asiento_id: string
+  cuenta_id: string
+  debe: number
+  haber: number
+  descripcion: string | null
+  creado_en: string
+}
+
+/**
+ * Laboratorio: catálogo de estudios
+ */
+export interface EstudioLaboratorio {
+  id: string
+  tenant_id: string
+  codigo: string | null
+  nombre: string
+  categoria: string | null
+  precio: number
+  unidad: string | null
+  valor_referencia_min: number | null
+  valor_referencia_max: number | null
+  tiempo_entrega_horas: number
+  activo: boolean
+  creado_en: string
+  actualizado_en: string | null
+}
+
+/**
+ * Laboratorio: órdenes de análisis
+ */
+export interface OrdenLaboratorio {
+  id: string
+  tenant_id: string
+  consulta_id: string | null
+  cliente_id: string
+  mascota_id: string
+  numero: number
+  fecha: string
+  estado: 'Solicitada' | 'En Proceso' | 'Completada' | 'Cancelada'
+  prioridad: 'Normal' | 'Urgente'
+  total: number
+  observaciones: string | null
+  creado_por: string
+  creado_en: string
+  actualizado_en: string | null
+}
+
+export interface OrdenLaboratorioItem {
+  id: string
+  tenant_id: string
+  orden_id: string
+  estudio_id: string
+  precio: number
+  resultado: string | null
+  valor_numerico: number | null
+  unidad: string | null
+  fuera_de_rango: boolean | null
+  observaciones: string | null
+  fecha_resultado: string | null
+  creado_en: string
+}
+
+/**
+ * Recepción: check-in y sala de espera
+ */
+export interface CheckIn {
+  id: string
+  tenant_id: string
+  turno_id: string | null
+  cliente_id: string
+  mascota_id: string
+  numero: number
+  estado: 'En Espera' | 'Llamado' | 'En Atención' | 'Finalizado' | 'Ausente'
+  prioridad: 'Normal' | 'Urgente' | 'Emergencia'
+  motivo: string | null
+  box: string | null
+  profesional_id: string | null
+  hora_llegada: string
+  hora_llamado: string | null
+  hora_atencion: string | null
+  hora_salida: string | null
+  observaciones: string | null
+  creado_por: string
+  creado_en: string
+  actualizado_en: string | null
+}
+
+/**
  * Ventas (Sales/Transactions)
  * Records products sold during or after consultations
  */

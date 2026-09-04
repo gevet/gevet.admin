@@ -7,35 +7,10 @@
  * - Password: adelvalle98
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { z } from 'zod'
-
-/**
- * Validation schemas match the application implementation
- */
-const registrationSchema = z.object({
-  email: z.string().email('Email must be valid'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  nombreComercial: z.string().min(2, 'Business name must be at least 2 characters'),
-})
-
-const onboardingSchema = z.object({
-  nombreComercial: z.string().min(1, 'El nombre comercial es requerido'),
-  telefono: z
-    .string()
-    .min(1, 'El teléfono es requerido')
-    .regex(/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/, 'El formato de teléfono no es válido'),
-  colorPrincipal: z.string().regex(/^#[0-9A-F]{6}$/i, 'Color primario inválido'),
-  colorSecundario: z.string().regex(/^#[0-9A-F]{6}$/i, 'Color secundario inválido'),
-  colorAccento: z.string().regex(/^#[0-9A-F]{6}$/i, 'Color acento inválido'),
-  nombreSucursal: z.string().min(1, 'El nombre de la sucursal es requerido'),
-  direccion: z.string().min(1, 'La dirección es requerida'),
-  ciudad: z.string().min(1, 'La ciudad es requerida'),
-  provincia: z.string().min(1, 'La provincia es requerida'),
-  email: z.union([z.string().email('Email inválido'), z.string().length(0)]),
-  horarioApertura: z.string().regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido'),
-  horarioCierre: z.string().regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido'),
-})
+import { describe, it, expect } from 'vitest'
+// Import the real schemas the application runs, rather than a copy that can
+// drift away from them.
+import { registrationSchema, onboardingSchema } from '@/lib/validation/onboarding'
 
 describe('GeVet Registration & Onboarding E2E Flow', () => {
   describe('PART 1: Registration Flow', () => {
@@ -379,7 +354,9 @@ describe('GeVet Registration & Onboarding E2E Flow', () => {
         { email: 'contacto@yaguarete.vet', valid: true },
         { email: 'info@veterinaria.com.ar', valid: true },
         { email: 'invalid-email', valid: false },
-        { email: 'no@domain.c', valid: true }, // Actually valid minimal TLD
+        // Zod's email check requires a two-character TLD, and no single-letter
+        // TLD exists, so this is rejected on purpose.
+        { email: 'no@domain.c', valid: false },
       ]
 
       emailTestCases.forEach(({ email, valid }) => {
@@ -568,7 +545,7 @@ describe('GeVet Registration & Onboarding E2E Flow', () => {
       expect(result.success).toBe(true)
       if (result.success) {
         // Extra field should not be in the parsed data
-        expect((result.data as any).extraField).toBeUndefined()
+        expect((result.data as Record<string, unknown>).extraField).toBeUndefined()
       }
     })
 

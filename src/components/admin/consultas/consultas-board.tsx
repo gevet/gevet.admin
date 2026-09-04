@@ -2,13 +2,20 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Download, Plus, Search, Trash2, ShoppingCart } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
-import { Modal } from '@/components/ui/modal'
 import { createClient } from '@/lib/supabase/client'
 import { listarVentasConsultaAction } from '@/app/admin/actions/productos'
 import { VentaModal } from './venta-modal'
+
+type ConsultaRow = {
+  id: string
+  cliente_id: string
+  mascota_id: string
+  diagnostico: string | null
+  evaluacion: string | null
+  creado_en: string
+}
 
 type ConsultaItem = {
   id: string
@@ -19,6 +26,7 @@ type ConsultaItem = {
   diagnostico: string
   evaluacion: string
   creado_en: string
+  ventasCount: number
 }
 
 export function ConsultasBoard() {
@@ -27,7 +35,6 @@ export function ConsultasBoard() {
   const [query, setQuery] = useState('')
   const [error, setError] = useState<string>()
   const [selectedConsultaId, setSelectedConsultaId] = useState<string | null>(null)
-  const [ventaModalOpen, setVentaModalOpen] = useState(false)
   const [ventasCount, setVentasCount] = useState<Record<string, number>>({})
 
   const load = useCallback(async () => {
@@ -44,8 +51,8 @@ export function ConsultasBoard() {
       if (requestError) throw requestError
 
       // Get client and mascota names
-      const consultasWithDetails = await Promise.all(
-        (data || []).map(async (consulta: any) => {
+      const consultasWithDetails: ConsultaItem[] = await Promise.all(
+        ((data || []) as ConsultaRow[]).map(async (consulta) => {
           const [clienteData, mascotaData] = await Promise.all([
             supabase.from('clientes').select('nombre, apellido').eq('id', consulta.cliente_id).single(),
             supabase.from('mascotas').select('nombre').eq('id', consulta.mascota_id).single(),
@@ -78,7 +85,7 @@ export function ConsultasBoard() {
 
       // Count ventas by consulta
       const counts: Record<string, number> = {}
-      consultasWithDetails.forEach((c: any) => {
+      consultasWithDetails.forEach((c) => {
         counts[c.id] = c.ventasCount
       })
       setVentasCount(counts)
@@ -211,10 +218,7 @@ export function ConsultasBoard() {
                   {ventasCount[item.id] || 0}
                 </div>
                 <button
-                  onClick={() => {
-                    setSelectedConsultaId(item.id)
-                    setVentaModalOpen(true)
-                  }}
+                  onClick={() => setSelectedConsultaId(item.id)}
                   className="justify-self-end rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
                   aria-label="Registrar venta"
                 >
@@ -238,7 +242,6 @@ export function ConsultasBoard() {
           consultaId={selectedConsultaId}
           clienteId={items.find((i) => i.id === selectedConsultaId)?.cliente_id || ''}
           onClose={() => {
-            setVentaModalOpen(false)
             setSelectedConsultaId(null)
             void load()
           }}

@@ -51,16 +51,18 @@ export function SalesMetrics() {
       // Get product count
       const { data: productos } = await supabase.from('productos').select('id').eq('activo', true)
 
-      const allVentasArray = allVentas || []
-      const ventasHoyArray = ventasHoy || []
-      const clientesSet = new Set((clientesUnicos || []).map((v: any) => v.cliente_id))
-      const cantidadTotal = allVentasArray.reduce((sum: number, v: any) => sum + (v.cantidad || 0), 0)
+      const allVentasArray = (allVentas || []) as Array<{ total: number; cantidad: number }>
+      const ventasHoyArray = (ventasHoy || []) as Array<{ total: number }>
+      const clientesSet = new Set(
+        ((clientesUnicos || []) as Array<{ cliente_id: string }>).map((v) => v.cliente_id),
+      )
+      const cantidadTotal = allVentasArray.reduce((sum, v) => sum + (Number(v.cantidad) || 0), 0)
 
       setMetrics({
         totalVentas: allVentasArray.length,
-        totalIngresos: allVentasArray.reduce((sum: number, v: any) => sum + (v.total || 0), 0),
+        totalIngresos: allVentasArray.reduce((sum, v) => sum + (Number(v.total) || 0), 0),
         ventasHoy: ventasHoyArray.length,
-        ingresosHoy: ventasHoyArray.reduce((sum: number, v: any) => sum + (v.total || 0), 0),
+        ingresosHoy: ventasHoyArray.reduce((sum, v) => sum + (Number(v.total) || 0), 0),
         clientesConVentas: clientesSet.size,
         productosVendidos: productos?.length || 0,
         articulosPromedio: allVentasArray.length > 0 ? cantidadTotal / allVentasArray.length : 0,

@@ -3,21 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getDbContext } from '@/lib/db'
 import { z } from 'zod'
-
-const onboardingSchema = z.object({
-  nombreComercial: z.string().min(1, 'El nombre comercial es requerido'),
-  telefono: z.string().min(1, 'El teléfono es requerido'),
-  colorPrincipal: z.string().regex(/^#[0-9A-F]{6}$/i, 'Color primario inválido'),
-  colorSecundario: z.string().regex(/^#[0-9A-F]{6}$/i, 'Color secundario inválido'),
-  colorAccento: z.string().regex(/^#[0-9A-F]{6}$/i, 'Color acento inválido'),
-  nombreSucursal: z.string().min(1, 'El nombre de la sucursal es requerido'),
-  direccion: z.string().min(1, 'La dirección es requerida'),
-  ciudad: z.string().min(1, 'La ciudad es requerida'),
-  provincia: z.string().min(1, 'La provincia es requerida'),
-  email: z.union([z.string().email('Email inválido'), z.string().length(0)]),
-  horarioApertura: z.string().regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido'),
-  horarioCierre: z.string().regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido'),
-})
+import { onboardingSchema } from '@/lib/validation/onboarding'
 
 export async function completarOnboardingAction(formData: FormData) {
   try {
@@ -109,25 +95,29 @@ export async function completarOnboardingAction(formData: FormData) {
       return { error: 'Error al guardar la identidad visual' }
     }
 
-    // Create main branch (sucursal)
-    const { error: sucursalError } = await supabase.from('sucursales').insert({
-      tenant_id,
-      nombre: validated.nombreSucursal,
-      direccion: validated.direccion,
-      ciudad: validated.ciudad,
-      provincia: validated.provincia,
-      telefono: validated.telefono,
-      email: validated.email,
-      horario_apertura: validated.horarioApertura,
-      horario_cierre: validated.horarioCierre,
-      activo: true,
-      creado_en: new Date().toISOString(),
-      actualizado_en: new Date().toISOString(),
-    })
+    // Create or update main branch (sucursal).
+    // Uses upsert because sucursales has unique(tenant_id, nombre): re-running
+    // onboarding with the same branch name must not fail with a duplicate key.
+    const { error: sucursalError } = await supabase.from('sucursales').upsert(
+      {
+        tenant_id,
+        nombre: validated.nombreSucursal,
+        direccion: validated.direccion,
+        ciudad: validated.ciudad,
+        provincia: validated.provincia,
+        telefono: validated.telefono,
+        email: validated.email || null,
+        horario_apertura: validated.horarioApertura,
+        horario_cierre: validated.horarioCierre,
+        activo: true,
+        actualizado_en: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id,nombre' },
+    )
 
     if (sucursalError) {
       console.error('Error creating branch:', sucursalError)
-      return { error: 'Error al crear la sucursal principal' }
+      return { error: `Error al crear la sucursal principal: ${sucursalError.message}` }
     }
 
     return { success: true, logoUrl }
