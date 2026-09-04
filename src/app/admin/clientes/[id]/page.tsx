@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ArrowLeft, Edit2, Trash2 } from 'lucide-react'
+import { ArrowLeft, Edit2, Trash2, Eye } from 'lucide-react'
 import { useRouter, useParams } from 'next/navigation'
 import { AdminLayout } from '@/components/admin/admin-layout'
 import { ClienteDetailView } from '@/components/admin/clientes/cliente-detail-view'
@@ -115,6 +115,13 @@ export default function ClienteDetailPage() {
             </p>
           </div>
           <div className="flex gap-2">
+            <button
+              onClick={() => router.push(`/admin/clientes/${clienteId}/360`)}
+              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+            >
+              <Eye className="w-4 h-4" />
+              Historial 360°
+            </button>
             <button
               onClick={() => setIsEditing(!isEditing)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
