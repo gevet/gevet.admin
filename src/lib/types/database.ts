@@ -185,3 +185,42 @@ export interface UsuarioConRoles extends GestionUsuario {
   roles: Rol[]
   permisos: Set<string>
 }
+
+/**
+ * Cuentas Corrientes (Accounts Receivable)
+ * Tracks client balance and payment terms
+ */
+export interface CuentaCorriente {
+  id: string
+  tenant_id: string
+  cliente_id: string
+  saldo_deuda: number
+  saldo_favor: number
+  limite_credito: number
+  condicion_pago: 'Contado' | 'Plazo 7' | 'Plazo 15' | 'Plazo 30' | 'Plazo 45' | 'Plazo 60'
+  dias_de_gracia: number
+  activo: boolean
+  creado_en: string
+  actualizado_en: string | null
+}
+
+/**
+ * Movimientos de Cuentas Corrientes (Account Transactions)
+ * Tracks debits (charges) and credits (payments) for each account
+ */
+export interface MovimientoCuentaCorriente {
+  id: string
+  tenant_id: string
+  cliente_id: string
+  cuenta_corriente_id: string
+  tipo: 'Cargo' | 'Abono' | 'Ajuste'
+  monto: number
+  saldo_anterior: number
+  saldo_nuevo: number
+  referencia_tipo: 'Venta' | 'Pago' | 'Devolución' | 'Ajuste' | 'Nota de Crédito'
+  referencia_id: string | null
+  descripcion: string
+  fecha_vencimiento: string | null
+  creado_por: string
+  creado_en: string
+}
