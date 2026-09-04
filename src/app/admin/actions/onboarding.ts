@@ -7,23 +7,73 @@ import { z } from 'zod'
 const onboardingSchema = z.object({
   nombreComercial: z.string().min(1, 'El nombre comercial es requerido'),
   telefono: z.string().min(1, 'El teléfono es requerido'),
-  colorPrincipal: z.string().regex(/^#[0-9A-F]{6}$/i, 'Color inválido'),
+  colorPrincipal: z.string().regex(/^#[0-9A-F]{6}$/i, 'Color primario inválido'),
+  colorSecundario: z.string().regex(/^#[0-9A-F]{6}$/i, 'Color secundario inválido'),
+  colorAccento: z.string().regex(/^#[0-9A-F]{6}$/i, 'Color acento inválido'),
   nombreSucursal: z.string().min(1, 'El nombre de la sucursal es requerido'),
   direccion: z.string().min(1, 'La dirección es requerida'),
+  ciudad: z.string().min(1, 'La ciudad es requerida'),
+  provincia: z.string().min(1, 'La provincia es requerida'),
+  email: z.string().email('Email inválido'),
+  horarioApertura: z.string().regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido'),
+  horarioCierre: z.string().regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido'),
 })
 
 type OnboardingData = z.infer<typeof onboardingSchema>
 
-export async function completarOnboardingAction(data: OnboardingData) {
+export async function completarOnboardingAction(formData: FormData) {
   try {
     const context = await getDbContext()
     if (!context) {
       return { error: 'No autorizado' }
     }
 
-    const validated = onboardingSchema.parse(data)
     const supabase = await createClient()
     const tenant_id = context.tenant_id
+
+    const data = {
+      nombreComercial: formData.get('nombreComercial') as string,
+      telefono: formData.get('telefono') as string,
+      colorPrincipal: formData.get('colorPrincipal') as string,
+      colorSecundario: formData.get('colorSecundario') as string,
+      colorAccento: formData.get('colorAccento') as string,
+      nombreSucursal: formData.get('nombreSucursal') as string,
+      direccion: formData.get('direccion') as string,
+      ciudad: formData.get('ciudad') as string,
+      provincia: formData.get('provincia') as string,
+      email: formData.get('email') as string,
+      horarioApertura: formData.get('horarioApertura') as string,
+      horarioCierre: formData.get('horarioCierre') as string,
+    }
+
+    const validated = onboardingSchema.parse(data)
+    const logoFile = formData.get('logo') as File | null
+
+    let logoUrl: string | null = null
+
+    // Upload logo to Supabase Storage if provided
+    if (logoFile && logoFile.size > 0) {
+      const fileName = `${tenant_id}-${Date.now()}.${logoFile.name.split('.').pop()}`
+      const filePath = `logos/${tenant_id}/${fileName}`
+
+      const { error: uploadError, data: uploadData } = await supabase.storage
+        .from('tenant-logos')
+        .upload(filePath, logoFile, {
+          cacheControl: '3600',
+          upsert: true,
+        })
+
+      if (uploadError) {
+        console.error('Error uploading logo:', uploadError)
+        return { error: 'Error al guardar el logo' }
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('tenant-logos')
+        .getPublicUrl(filePath)
+
+      logoUrl = publicUrlData.publicUrl
+    }
 
     // Update tenant with nombre comercial and mark onboarding as complete
     const { error: tenantError } = await supabase
@@ -47,8 +97,9 @@ export async function completarOnboardingAction(data: OnboardingData) {
         {
           tenant_id,
           color_primario: validated.colorPrincipal,
-          color_secundario: '#1e293b',
-          color_acento: '#0ea5e9',
+          color_secundario: validated.colorSecundario,
+          color_acento: validated.colorAccento,
+          logo_url: logoUrl,
           actualizado_en: new Date().toISOString(),
         },
         { onConflict: 'tenant_id' },
@@ -64,7 +115,12 @@ export async function completarOnboardingAction(data: OnboardingData) {
       tenant_id,
       nombre: validated.nombreSucursal,
       direccion: validated.direccion,
+      ciudad: validated.ciudad,
+      provincia: validated.provincia,
       telefono: validated.telefono,
+      email: validated.email,
+      horario_apertura: validated.horarioApertura,
+      horario_cierre: validated.horarioCierre,
       activo: true,
       creado_en: new Date().toISOString(),
       actualizado_en: new Date().toISOString(),
@@ -75,7 +131,7 @@ export async function completarOnboardingAction(data: OnboardingData) {
       return { error: 'Error al crear la sucursal principal' }
     }
 
-    return { success: true }
+    return { success: true, logoUrl }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { error: error.errors[0].message }
