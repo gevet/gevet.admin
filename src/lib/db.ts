@@ -13,8 +13,6 @@ import type {
   Turno,
   Consulta,
   Rol,
-  Sucursal,
-  GestionUsuario,
   Tenant,
   DbContext,
 } from '@/lib/types/database'
@@ -62,7 +60,7 @@ export async function getDbContext(): Promise<DbContext | null> {
 /**
  * CLIENTES
  */
-export async function crearCliente(data: Omit<Cliente, 'id' | 'tenant_id' | 'creado_por' | 'creado_en' | 'actualizado_en'>): Promise<Cliente | null> {
+export async function crearCliente(data: Record<string, unknown>): Promise<Cliente | null> {
   const context = await getDbContext()
   if (!context) return null
 
@@ -74,6 +72,16 @@ export async function crearCliente(data: Omit<Cliente, 'id' | 'tenant_id' | 'cre
       ...data,
       tenant_id: context.tenant_id,
       creado_por: context.user_id,
+      // Provide defaults for required fields not in input
+      activo: data.activo ?? true,
+      razon_social: data.razon_social ?? null,
+      direccion: data.direccion ?? null,
+      numero_calle: data.numero_calle ?? null,
+      apartamento: data.apartamento ?? null,
+      codigo_postal: data.codigo_postal ?? null,
+      pais: data.pais ?? 'Argentina',
+      responsable_iva: data.responsable_iva ?? false,
+      condicion_iva: data.condicion_iva ?? null,
     })
     .select()
     .single()
@@ -125,7 +133,7 @@ export async function listarClientes(filtros?: { activo?: boolean; ciudad?: stri
 export async function actualizarCliente(clienteId: string, datos: Partial<Cliente>): Promise<Cliente | null> {
   const supabase = await getSupabase()
 
-  const { id, tenant_id, creado_por, creado_en, ...updateData } = datos
+  const { ...updateData } = datos
 
   const { data: cliente, error } = await supabase
     .from('clientes')
@@ -145,7 +153,7 @@ export async function actualizarCliente(clienteId: string, datos: Partial<Client
 /**
  * MASCOTAS
  */
-export async function crearMascota(data: Omit<Mascota, 'id' | 'tenant_id' | 'creado_por' | 'creado_en' | 'actualizado_en'>): Promise<Mascota | null> {
+export async function crearMascota(data: Record<string, unknown>): Promise<Mascota | null> {
   const context = await getDbContext()
   if (!context) return null
 
@@ -157,6 +165,11 @@ export async function crearMascota(data: Omit<Mascota, 'id' | 'tenant_id' | 'cre
       ...data,
       tenant_id: context.tenant_id,
       creado_por: context.user_id,
+      // Provide defaults
+      activo: data.activo ?? true,
+      microchip: data.microchip ?? null,
+      numero_tatuaje: data.numero_tatuaje ?? null,
+      foto_url: data.foto_url ?? null,
     })
     .select()
     .single()
@@ -203,7 +216,7 @@ export async function listarMascotasPorCliente(clienteId: string): Promise<Masco
 /**
  * TURNOS
  */
-export async function crearTurno(data: Omit<Turno, 'id' | 'tenant_id' | 'creado_por' | 'creado_en' | 'actualizado_en'>): Promise<Turno | null> {
+export async function crearTurno(data: Record<string, unknown>): Promise<Turno | null> {
   const context = await getDbContext()
   if (!context) return null
 
@@ -215,6 +228,10 @@ export async function crearTurno(data: Omit<Turno, 'id' | 'tenant_id' | 'creado_
       ...data,
       tenant_id: context.tenant_id,
       creado_por: context.user_id,
+      // Provide defaults
+      estado: data.estado ?? 'Pendiente',
+      observaciones: data.observaciones ?? null,
+      razon_cancelacion: data.razon_cancelacion ?? null,
     })
     .select()
     .single()
@@ -252,7 +269,7 @@ export async function listarTurnosPorFecha(fecha: string): Promise<Turno[]> {
 export async function actualizarEstadoTurno(turnoId: string, nuevoEstado: Turno['estado'], razonCancelacion?: string): Promise<Turno | null> {
   const supabase = await getSupabase()
 
-  const updateData: any = { estado: nuevoEstado }
+  const updateData: Record<string, string | undefined> = { estado: nuevoEstado }
   if (razonCancelacion) {
     updateData.razon_cancelacion = razonCancelacion
   }
@@ -275,7 +292,7 @@ export async function actualizarEstadoTurno(turnoId: string, nuevoEstado: Turno[
 /**
  * CONSULTAS
  */
-export async function crearConsulta(data: Omit<Consulta, 'id' | 'tenant_id' | 'creado_por' | 'creado_en' | 'actualizado_en'>): Promise<Consulta | null> {
+export async function crearConsulta(data: Record<string, unknown>): Promise<Consulta | null> {
   const context = await getDbContext()
   if (!context) return null
 
@@ -287,7 +304,7 @@ export async function crearConsulta(data: Omit<Consulta, 'id' | 'tenant_id' | 'c
       ...data,
       tenant_id: context.tenant_id,
       creado_por: context.user_id,
-      profesional_id: context.user_id,
+      profesional_id: data.profesional_id ?? context.user_id,
     })
     .select()
     .single()
