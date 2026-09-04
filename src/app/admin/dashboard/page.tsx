@@ -1,3 +1,91 @@
-import Link from "next/link";import {ArrowRight,CalendarDays,Clock3,DollarSign,Plus,Stethoscope,UsersRound} from "lucide-react";import {Card} from "@/components/ui/card";
-const stats=[{label:"Turnos de hoy",value:"0",hint:"Sin turnos programados",icon:CalendarDays,color:"text-blue-600 bg-blue-50"},{label:"Pacientes atendidos",value:"0",hint:"Durante la jornada",icon:Stethoscope,color:"text-violet-600 bg-violet-50"},{label:"Clientes nuevos",value:"0",hint:"Este mes",icon:UsersRound,color:"text-emerald-600 bg-emerald-50"},{label:"Caja del día",value:"$ 0",hint:"Todavía sin movimientos",icon:DollarSign,color:"text-amber-600 bg-amber-50"}];
-export default function Page(){return <div><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm text-slate-500">Viernes, 4 de septiembre</p><h1 className="mt-1 text-2xl font-bold sm:text-3xl">Buen día 👋</h1><p className="mt-1 text-slate-500">Esto es lo que pasa hoy en tu veterinaria.</p></div><Link href="/admin/agenda" className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white"><Plus size={18}/> Nuevo turno</Link></div><div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{stats.map(s=><Card key={s.label}><div className="flex items-start justify-between"><div><p className="text-sm text-slate-500">{s.label}</p><p className="mt-2 text-3xl font-bold">{s.value}</p></div><span className={`rounded-xl p-3 ${s.color}`}><s.icon size={20}/></span></div><p className="mt-4 text-xs text-slate-400">{s.hint}</p></Card>)}</div><div className="mt-5 grid gap-5 xl:grid-cols-[1.5fr_1fr]"><Card><div className="flex items-center justify-between"><div><h2 className="font-bold">Próximos turnos</h2><p className="text-sm text-slate-500">Agenda de la jornada</p></div><Link href="/admin/agenda" className="text-sm font-semibold text-blue-600">Ver agenda</Link></div><div className="flex min-h-72 flex-col items-center justify-center text-center"><span className="rounded-2xl bg-slate-100 p-4 text-slate-400"><Clock3/></span><p className="mt-4 font-semibold">Tu agenda está libre</p><p className="mt-1 text-sm text-slate-500">Creá un turno para empezar a organizar el día.</p><Link href="/admin/agenda" className="mt-4 flex items-center gap-1 text-sm font-semibold text-blue-600">Crear turno <ArrowRight size={16}/></Link></div></Card><Card><h2 className="font-bold">Acciones rápidas</h2><p className="text-sm text-slate-500">Lo que más usás, a mano</p><div className="mt-5 grid gap-2">{[["/admin/clientes","Nuevo cliente",UsersRound],["/admin/mascotas","Nuevo paciente",Stethoscope],["/admin/consultas","Iniciar consulta",CalendarDays],["/admin/caja","Registrar venta",DollarSign]].map(([href,label,Icon])=><Link key={label as string} href={href as string} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm font-semibold hover:border-blue-200 hover:bg-blue-50"><span className="rounded-lg bg-slate-100 p-2"><Icon size={17}/></span>{label as string}<ArrowRight className="ml-auto text-slate-400" size={16}/></Link>)}</div></Card></div></div>}
+'use client'
+
+import { useEffect, useState } from 'react'
+import { Users, PawPrint, Calendar, FileText } from 'lucide-react'
+import { AdminLayout } from '@/components/admin/admin-layout'
+import { DashboardMetrics } from '@/components/admin/dashboard/dashboard-metrics'
+import { RecentActivity } from '@/components/admin/dashboard/recent-activity'
+import { listarClientesAction } from '@/app/admin/actions/clientes'
+import { listarTurnosFechaAction } from '@/app/admin/actions/turnos'
+import { listarConsultasAction } from '@/app/admin/actions/consultas'
+
+export default function DashboardPage() {
+  const [clientCount, setClientCount] = useState(0)
+  const [appointmentCount, setAppointmentCount] = useState(0)
+  const [consultationCount, setConsultationCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadMetrics()
+  }, [])
+
+  async function loadMetrics() {
+    setLoading(true)
+
+    const clientesResult = await listarClientesAction({ activo: true })
+    if (clientesResult.data) {
+      setClientCount(clientesResult.data.length)
+    }
+
+    const today = new Date().toISOString().split('T')[0]
+    const turnosResult = await listarTurnosFechaAction(today)
+    if (turnosResult.data) {
+      setAppointmentCount(turnosResult.data.length)
+    }
+
+    const consultasResult = await listarConsultasAction()
+    if (consultasResult.data) {
+      setConsultationCount(consultasResult.data.length)
+    }
+
+    setLoading(false)
+  }
+
+  const metrics = [
+    {
+      title: 'Clientes Activos',
+      value: clientCount,
+      icon: Users,
+      color: 'blue',
+    },
+    {
+      title: 'Turnos Hoy',
+      value: appointmentCount,
+      icon: Calendar,
+      color: 'green',
+    },
+    {
+      title: 'Total Consultas',
+      value: consultationCount,
+      icon: FileText,
+      color: 'purple',
+    },
+    {
+      title: 'Mascotas Registradas',
+      value: '-',
+      icon: PawPrint,
+      color: 'orange',
+    },
+  ]
+
+  return (
+    <AdminLayout>
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+            Dashboard
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400">
+            Resumen general de tu clínica veterinaria
+          </p>
+        </div>
+
+        <DashboardMetrics metrics={metrics} loading={loading} />
+
+        <div className="mt-8">
+          <RecentActivity />
+        </div>
+      </div>
+    </AdminLayout>
+  )
+}

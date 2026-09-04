@@ -96,6 +96,25 @@ export async function listarConsultasMascotaAction(mascotaId: string): Promise<{
 }
 
 /**
+ * List all consultations for the current tenant
+ */
+export async function listarConsultasAction(): Promise<{ error?: string; data?: Consulta[] }> {
+  try {
+    const context = await getDbContext()
+    if (!context) {
+      return { error: 'No autorizado' }
+    }
+
+    // TODO: Implement database query to list all consultations
+    // For now, return empty array as placeholder
+    return { data: [] }
+  } catch (error) {
+    console.error('Error listing consultas:', error)
+    return { error: 'Error al listar consultas' }
+  }
+}
+
+/**
  * Generate a medical prescription as PDF
  * (To be implemented with jsPDF)
  */
