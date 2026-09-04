@@ -1,24 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { ArrowLeft, Edit2, Trash2 } from 'lucide-react'
-import { useRouter, useParams } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { AdminLayout } from '@/components/admin/admin-layout'
 
 export default function TurnoDetailPage() {
   const router = useRouter()
-  const params = useParams()
-  const turnoId = params.id as string
-
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (turnoId) {
-      setError('Detalle de turno no disponible aún')
-      setLoading(false)
-    }
-  }, [turnoId])
 
   return (
     <AdminLayout>
