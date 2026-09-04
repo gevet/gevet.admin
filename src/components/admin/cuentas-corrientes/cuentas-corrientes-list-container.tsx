@@ -53,6 +53,14 @@ export function CuentasCorrientesListContainer() {
     )
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-slate-600 dark:text-slate-400">Cargando cuentas corrientes...</div>
+      </div>
+    )
+  }
+
   return (
     <CuentasCorrientesList
       clientes={clientes}

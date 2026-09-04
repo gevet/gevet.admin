@@ -40,7 +40,7 @@ export async function obtenerCuentaCorrienteAction(clienteId: string) {
  */
 export async function obtenerClientesConCuentasAction(
   page: number = 1,
-  search: string = '',
+  _search: string = '',
 ) {
   try {
     const context = await getDbContext()
@@ -84,7 +84,7 @@ export async function registrarPagoAction(input: unknown) {
     const context = await getDbContext()
     if (!context) return { error: 'No autorizado' }
 
-    const validated = registrarPagoSchema.parse(input)
+    registrarPagoSchema.parse(input)
 
     // TODO: Implement database transaction:
     // 1. Fetch cuenta_corriente for cliente
@@ -122,7 +122,7 @@ export async function crearActualizarCuentaAction(input: unknown) {
     const context = await getDbContext()
     if (!context) return { error: 'No autorizado' }
 
-    const validated = crearActualizarCuentaSchema.parse(input)
+    crearActualizarCuentaSchema.parse(input)
 
     // TODO: Implement database operation:
     // 1. Check if cliente exists and belongs to tenant

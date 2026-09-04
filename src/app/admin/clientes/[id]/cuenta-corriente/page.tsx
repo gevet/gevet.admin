@@ -19,7 +19,7 @@ export default function CuentaCorrientePage() {
   const clienteId = params.id as string
 
   const [data, setData] = useState<CuentaCorrienteData | null>(null)
-  const [clienteNombre, setClienteNombre] = useState('Cliente')
+  const [clienteNombre] = useState('Cliente')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

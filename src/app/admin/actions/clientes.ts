@@ -2,7 +2,7 @@
 
 import { z } from 'zod'
 import { crearCliente, obtenerCliente, listarClientes, actualizarCliente, getDbContext } from '@/lib/db'
-import type { Cliente } from '@/lib/types/database'
+import type { Cliente, Mascota, Turno, Consulta } from '@/lib/types/database'
 
 /**
  * Zod schemas for client validation
@@ -179,9 +179,9 @@ export async function obtenerHistorial360ClienteAction(
   error?: string
   data?: {
     cliente: Cliente
-    mascotas: any[]
-    turnos: any[]
-    consultas: any[]
+    mascotas: Mascota[]
+    turnos: Turno[]
+    consultas: Consulta[]
   }
 }> {
   if (!clienteId) {

@@ -6,12 +6,13 @@ import { useRouter, useParams } from 'next/navigation'
 import { AdminLayout } from '@/components/admin/admin-layout'
 import { Cliente360View } from '@/components/admin/clientes/cliente-360-view'
 import { obtenerHistorial360ClienteAction } from '@/app/admin/actions/clientes'
+import type { Cliente, Mascota, Turno, Consulta } from '@/lib/types/database'
 
 interface Historial360Data {
-  cliente: any
-  mascotas: any[]
-  turnos: any[]
-  consultas: any[]
+  cliente: Cliente
+  mascotas: Mascota[]
+  turnos: Turno[]
+  consultas: Consulta[]
 }
 
 export default function Cliente360Page() {

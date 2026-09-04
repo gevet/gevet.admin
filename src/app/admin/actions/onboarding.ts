@@ -19,8 +19,6 @@ const onboardingSchema = z.object({
   horarioCierre: z.string().regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido'),
 })
 
-type OnboardingData = z.infer<typeof onboardingSchema>
-
 export async function completarOnboardingAction(formData: FormData) {
   try {
     const context = await getDbContext()
