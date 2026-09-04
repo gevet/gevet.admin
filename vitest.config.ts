@@ -3,9 +3,9 @@ import path from 'path'
 
 export default defineConfig({
   test: {
-    environment: 'node',
+    environment: 'jsdom',
     globals: true,
-    setupFiles: [],
+    setupFiles: [path.resolve(__dirname, './jest.setup.ts')],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
