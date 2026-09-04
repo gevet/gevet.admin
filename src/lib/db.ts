@@ -15,6 +15,8 @@ import type {
   Rol,
   Tenant,
   DbContext,
+  Producto,
+  Venta,
 } from '@/lib/types/database'
 
 export const getSupabase = async () => {
@@ -381,4 +383,140 @@ export async function obtenerTenant(tenantId: string): Promise<Tenant | null> {
 
   if (error) return null
   return tenant as Tenant
+}
+
+/**
+ * PRODUCTOS (Inventory)
+ */
+export async function crearProducto(tenantId: string, producto: Omit<Producto, 'id' | 'tenant_id' | 'creado_en' | 'actualizado_en'>): Promise<Producto | null> {
+  const supabase = await getSupabase()
+
+  const { data, error } = await supabase
+    .from('productos')
+    .insert({ ...producto, tenant_id: tenantId })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating producto:', error)
+    return null
+  }
+
+  return data as Producto
+}
+
+export async function listarProductos(tenantId: string): Promise<Producto[]> {
+  const supabase = await getSupabase()
+
+  const { data: productos, error } = await supabase
+    .from('productos')
+    .select()
+    .eq('tenant_id', tenantId)
+    .eq('activo', true)
+    .order('nombre')
+
+  if (error) {
+    console.error('Error listing productos:', error)
+    return []
+  }
+
+  return (productos || []) as Producto[]
+}
+
+export async function obtenerProducto(productoId: string): Promise<Producto | null> {
+  const supabase = await getSupabase()
+
+  const { data: producto, error } = await supabase
+    .from('productos')
+    .select()
+    .eq('id', productoId)
+    .single()
+
+  if (error) return null
+  return producto as Producto
+}
+
+export async function actualizarProducto(productoId: string, updates: Partial<Producto>): Promise<Producto | null> {
+  const supabase = await getSupabase()
+
+  const { data, error } = await supabase
+    .from('productos')
+    .update(updates)
+    .eq('id', productoId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating producto:', error)
+    return null
+  }
+
+  return data as Producto
+}
+
+/**
+ * VENTAS (Sales)
+ */
+export async function crearVenta(tenantId: string, venta: Omit<Venta, 'id' | 'tenant_id' | 'creado_en' | 'actualizado_en'>): Promise<Venta | null> {
+  const supabase = await getSupabase()
+
+  const { data, error } = await supabase
+    .from('ventas')
+    .insert({ ...venta, tenant_id: tenantId })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating venta:', error)
+    return null
+  }
+
+  return data as Venta
+}
+
+export async function listarVentasConsulta(consultaId: string): Promise<Venta[]> {
+  const supabase = await getSupabase()
+
+  const { data: ventas, error } = await supabase
+    .from('ventas')
+    .select()
+    .eq('consulta_id', consultaId)
+    .order('creado_en', { ascending: false })
+
+  if (error) {
+    console.error('Error listing ventas:', error)
+    return []
+  }
+
+  return (ventas || []) as Venta[]
+}
+
+export async function listarVentasCliente(clienteId: string): Promise<Venta[]> {
+  const supabase = await getSupabase()
+
+  const { data: ventas, error } = await supabase
+    .from('ventas')
+    .select()
+    .eq('cliente_id', clienteId)
+    .order('creado_en', { ascending: false })
+
+  if (error) {
+    console.error('Error listing ventas:', error)
+    return []
+  }
+
+  return (ventas || []) as Venta[]
+}
+
+export async function obtenerVenta(ventaId: string): Promise<Venta | null> {
+  const supabase = await getSupabase()
+
+  const { data: venta, error } = await supabase
+    .from('ventas')
+    .select()
+    .eq('id', ventaId)
+    .single()
+
+  if (error) return null
+  return venta as Venta
 }

@@ -224,3 +224,49 @@ export interface MovimientoCuentaCorriente {
   creado_por: string
   creado_en: string
 }
+
+/**
+ * Productos (Inventory/Products)
+ * Tracks veterinary products, medicines, food, accessories available for sale
+ */
+export interface Producto {
+  id: string
+  tenant_id: string
+  nombre: string
+  descripcion: string | null
+  precio_venta: number
+  precio_costo: number | null
+  stock_cantidad: number
+  unidad: string
+  categoria: string | null
+  codigo_barras: string | null
+  proveedor: string | null
+  activo: boolean
+  creado_en: string
+  actualizado_en: string | null
+}
+
+/**
+ * Ventas (Sales/Transactions)
+ * Records products sold during or after consultations
+ */
+export interface Venta {
+  id: string
+  tenant_id: string
+  consulta_id: string | null
+  cliente_id: string
+  producto_id: string
+  cantidad: number
+  precio_unitario: number
+  subtotal: number
+  descuento_porcentaje: number
+  descuento_monto: number
+  total: number
+  metodo_pago: 'Contado' | 'Tarjeta' | 'Transferencia' | 'Cuenta Corriente'
+  estado: 'Pendiente' | 'Completada' | 'Cancelada'
+  referencia_comprobante: string | null
+  observaciones: string | null
+  creado_por: string
+  creado_en: string
+  actualizado_en: string | null
+}
