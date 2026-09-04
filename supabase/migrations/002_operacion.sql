@@ -1,0 +1,8 @@
+do $$begin create type public.tipo_entidad as enum('cliente','mascota','turno','consulta','item','movimiento_stock','movimiento_caja');exception when duplicate_object then null;end$$;
+create table if not exists public.gestion_registros(id uuid primary key default gen_random_uuid(),tenant_id uuid not null references public.tenants(id) on delete cascade,tipo public.tipo_entidad not null,nombre text not null,detalle jsonb not null default '{}',creado_por uuid references auth.users(id),creado_en timestamptz not null default now(),actualizado_en timestamptz,activo boolean not null default true);
+alter table public.gestion_registros enable row level security;
+drop policy if exists registros_select on public.gestion_registros;create policy registros_select on public.gestion_registros for select using(tenant_id=auth.tenant_id());
+drop policy if exists registros_insert on public.gestion_registros;create policy registros_insert on public.gestion_registros for insert with check(tenant_id=auth.tenant_id() and creado_por=auth.uid());
+drop policy if exists registros_update on public.gestion_registros;create policy registros_update on public.gestion_registros for update using(tenant_id=auth.tenant_id()) with check(tenant_id=auth.tenant_id());
+drop policy if exists registros_delete on public.gestion_registros;create policy registros_delete on public.gestion_registros for delete using(tenant_id=auth.tenant_id());
+create index if not exists registros_tenant_tipo_fecha_idx on public.gestion_registros(tenant_id,tipo,creado_en desc);create index if not exists registros_tenant_nombre_idx on public.gestion_registros(tenant_id,nombre);
