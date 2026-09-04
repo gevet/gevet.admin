@@ -8,7 +8,7 @@ Plataforma multi-tenant y configurable para la gestión cotidiana de clínicas v
 2. Instalá dependencias con `npm install`.
 3. Ejecutá `npm run dev` y abrí `http://localhost:3000`.
 
-La interfaz permite recorrer el onboarding, dashboard y módulos operativos aun sin credenciales de Supabase. En ese modo, los registros de la sesión se guardan localmente para facilitar la evaluación. Para producción se deben aplicar las migraciones y conectar las operaciones a Supabase.
+La autenticación y los módulos operativos requieren Supabase configurado. Aplicá todas las migraciones antes de crear la primera cuenta: el trigger de Auth crea el tenant, branding y usuario en una única transacción.
 
 ## Seguridad
 
